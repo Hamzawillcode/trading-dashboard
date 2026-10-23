@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+notes/.build/*.html
+test-results/
+playwright-report/
+Hamza_Rouf_SDE_front_end.pdf
