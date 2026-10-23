@@ -5,16 +5,18 @@
 //   3. RENDERING LISTS: .map() turns an array of data into an array of rows, each with a `key`
 
 import { useState } from 'react'
-import type { Ticker } from '../types'
+import type { WatchlistItem } from '../config'
+import type { TickerMap } from '../types'
 import { WatchlistRow } from './WatchlistRow'
 
 type WatchlistProps = {
-  tickers: Ticker[]
+  items: WatchlistItem[]             // which coins to list (names)
+  tickers: TickerMap                 // live prices, looked up by symbol
   selectedSymbol: string
   onSelect: (symbol: string) => void // passed straight through to every row
 }
 
-export function Watchlist({ tickers, selectedSymbol, onSelect }: WatchlistProps) {
+export function Watchlist({ items, tickers, selectedSymbol, onSelect }: WatchlistProps) {
   // useState('') creates a piece of state that starts as an empty string.
   //   search    → the current value
   //   setSearch → the function to change it. Calling it RE-RENDERS this component.
@@ -22,8 +24,8 @@ export function Watchlist({ tickers, selectedSymbol, onSelect }: WatchlistProps)
 
   // DERIVED DATA: computed from props + state on every render, never stored separately.
   // Keep only coins whose symbol contains the search text (case-insensitive).
-  const filtered = tickers.filter((t) =>
-    t.symbol.toLowerCase().includes(search.toLowerCase()),
+  const filtered = items.filter((item) =>
+    item.symbol.toLowerCase().includes(search.toLowerCase()),
   )
 
   return (
@@ -48,14 +50,15 @@ export function Watchlist({ tickers, selectedSymbol, onSelect }: WatchlistProps)
 
       {/* ===== The rows (overflow-y-auto = scroll if the list is long) ===== */}
       <div className="flex-1 overflow-y-auto">
-        {/* .map(): for each ticker, return a <WatchlistRow>.
-            key={t.symbol}: a stable, unique id so React can tell which row is which
+        {/* .map(): for each coin, return a <WatchlistRow>.
+            key={item.symbol}: a stable, unique id so React can tell which row is which
             when the list changes (don't use the array index for lists that reorder or filter). */}
-        {filtered.map((t) => (
+        {filtered.map((item) => (
           <WatchlistRow
-            key={t.symbol}
-            ticker={t}
-            isSelected={t.symbol === selectedSymbol}
+            key={item.symbol}
+            item={item}
+            ticker={tickers[item.symbol]}
+            isSelected={item.symbol === selectedSymbol}
             onSelect={onSelect}
           />
         ))}

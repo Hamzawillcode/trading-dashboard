@@ -35,7 +35,7 @@
 - **Build:** layout components, a static Watchlist from mock data, clicking a symbol selects it
 - **Notes:** `notes/01-react-basics.md`
 
-### Phase 2: WebSockets (2h)
+### Phase 2: WebSockets (2h) ✅ built
 - **Study:** HTTP vs WebSocket · how the connection opens and closes · Binance WebSocket streams (just read the "Websocket Market Streams" docs page) · heartbeat/ping-pong · exponential backoff with jitter · custom hooks · `useEffect` cleanup
 - **Build:** a `BinanceSocket` class that handles heartbeat, reconnect and resubscribe, plus a connection-status badge
 - **Notes:** `notes/02-websockets.md`
