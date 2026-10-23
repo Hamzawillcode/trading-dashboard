@@ -1,13 +1,24 @@
 <!doctype html>
+<!--
+  index.html: the ONE and only HTML page of this app (that's what "Single Page App" means).
+  The browser loads this first. React then draws the whole UI inside <div id="root">.
+  class="dark" turns on dark mode for the whole page.
+-->
 <html lang="en" class="dark">
   <head>
+    <!-- charset: lets the page show any character (₹, €, emojis) correctly -->
     <meta charset="UTF-8" />
+    <!-- The small icon shown in the browser tab -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Makes the page fit phone screens instead of showing a zoomed-out desktop page -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Text shown on the browser tab -->
     <title>Trading Dashboard</title>
   </head>
   <body>
+    <!-- Empty box. React fills it with our app (see src/main.tsx) -->
     <div id="root"></div>
+    <!-- Loads our JavaScript/TypeScript entry file. Vite converts .tsx into plain JS for the browser -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

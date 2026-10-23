@@ -1,18 +1,33 @@
+/*
+  index.css: GLOBAL styles that apply to the whole app.
+  Loaded once from main.tsx.
+*/
+
+/* Pulls in Tailwind, which gives us utility classes like p-3, flex, rounded-lg, text-sm */
 @import "tailwindcss";
 
-/* Design tokens: one place to change the whole colour scheme */
+/*
+  DESIGN TOKENS: every colour the app uses, defined in ONE place.
+  Tailwind turns each "--color-xyz" into classes automatically:
+    --color-panel → bg-panel, border-panel, text-panel
+    --color-up    → text-up (green, price went up)
+    --color-down  → text-down (red, price went down)
+  To re-theme the whole app, change these values only.
+*/
 @theme {
-  --color-bg: #0b0e11;
-  --color-panel: #161a1e;
-  --color-border: #2b3139;
-  --color-text: #eaecef;
-  --color-muted: #848e9c;
-  --color-up: #0ecb81;
-  --color-down: #f6465d;
-  --color-accent: #f0b90b;
+  --color-bg: #0b0e11;      /* page background (near-black) */
+  --color-panel: #161a1e;   /* background of each card/panel */
+  --color-border: #2b3139;  /* thin lines between things */
+  --color-text: #eaecef;    /* main text (off-white) */
+  --color-muted: #848e9c;   /* secondary text (grey labels) */
+  --color-up: #0ecb81;      /* green: price up / buy / profit */
+  --color-down: #f6465d;    /* red: price down / sell / loss */
+  --color-accent: #f0b90b;  /* yellow brand colour (title, highlights) */
 }
 
+/* Base style for the whole page body */
 body {
+  /* @apply lets us use Tailwind classes inside CSS: dark background, light text, smoother fonts */
   @apply bg-bg text-text antialiased;
-  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif; /* use the OS's native font */
 }
