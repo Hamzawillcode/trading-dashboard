@@ -30,7 +30,7 @@
 - **Build:** Vite + React + TS project, Tailwind, a dark app shell with 3 empty panels
 - **Notes:** `notes/00-setup.md`
 
-### Phase 1: React fundamentals (2.5h)
+### Phase 1: React fundamentals (2.5h) ✅ built
 - **Study:** components & JSX · props · `useState` · re-rendering (what triggers it) · rendering lists & `key` · `useEffect` (basic idea) · component composition
 - **Build:** layout components, a static Watchlist from mock data, clicking a symbol selects it
 - **Notes:** `notes/01-react-basics.md`
