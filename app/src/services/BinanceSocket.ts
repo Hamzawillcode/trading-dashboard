@@ -24,6 +24,12 @@ const HEARTBEAT_CHECK = 5_000     // how often we check whether the connection i
 const PING_AFTER_IDLE = 10_000    // silent for 10s → send a "ping" request
 const DEAD_AFTER_IDLE = 20_000    // silent for 20s → assume dead and reconnect
 
+// The endpoint that most recently connected, SHARED by every BinanceSocket (a module-level variable).
+// On networks where the first URL is blocked, the first socket fails over to the second one.
+// The chart's and order book's sockets then start straight on the URL that works, instead of
+// each failing (and waiting ~1s) on the blocked one first.
+let lastGoodUrl: string | null = null
+
 type Options = {
   urls: string[]                                  // endpoints to try (rotates on each reconnect)
   onMessage: (data: unknown) => void              // called with every parsed data message
@@ -48,6 +54,9 @@ export class BinanceSocket {
 
   constructor(opts: Options) {
     this.opts = opts
+    // Start on the URL that last worked, if it's one of ours
+    const preferred = lastGoodUrl ? opts.urls.indexOf(lastGoodUrl) : -1
+    if (preferred > 0) this.urlIndex = preferred
   }
 
   // ===================== PUBLIC API =====================
@@ -62,7 +71,10 @@ export class BinanceSocket {
     this.ws = ws
 
     // The 4 WebSocket events: open, message, close, error
-    ws.onopen = () => this.handleOpen()
+    ws.onopen = () => {
+      lastGoodUrl = url // remember it for sockets created later
+      this.handleOpen()
+    }
     ws.onmessage = (event) => this.handleMessage(event)
     ws.onclose = () => this.handleDisconnect()
     // "error" is always followed by "close", so we handle everything in close.
@@ -179,9 +191,17 @@ export class BinanceSocket {
 
   // Remove our handlers first (so this old socket can't trigger anything), then close it
   private detachAndClose() {
-    if (!this.ws) return
-    this.ws.onopen = this.ws.onmessage = this.ws.onclose = this.ws.onerror = null
-    this.ws.close()
+    const ws = this.ws
+    if (!ws) return
+    ws.onopen = ws.onmessage = ws.onclose = ws.onerror = null
+    if (ws.readyState === WebSocket.CONNECTING) {
+      // Closing a socket that's still CONNECTING makes the browser log a scary warning
+      // ("closed before the connection is established"). This happens a lot in development,
+      // where StrictMode mounts → unmounts → remounts every component. So close it the moment it opens.
+      ws.onopen = () => ws.close()
+    } else {
+      ws.close()
+    }
     this.ws = null
   }
 

@@ -120,6 +120,7 @@ export function OrderForm({ symbol }: Props) {
       {type === 'LIMIT' ? (
         <Field label="Price" unit={item.quote} error={showError(price) ? check.errors.price : undefined}>
           <input
+            name="price" // a name identifies the field (for autofill, forms and accessibility tools)
             value={price}
             inputMode="decimal" // phones show the number keyboard
             onChange={(e) => DECIMAL.test(e.target.value) && setPrice(e.target.value)}
@@ -137,6 +138,7 @@ export function OrderForm({ symbol }: Props) {
       {/* ===== Quantity + quick % buttons ===== */}
       <Field label="Quantity" unit={item.base} error={showError(quantity) ? check.errors.quantity : undefined}>
         <input
+          name="quantity"
           value={quantity}
           inputMode="decimal"
           onChange={(e) => DECIMAL.test(e.target.value) && setQuantity(e.target.value)}

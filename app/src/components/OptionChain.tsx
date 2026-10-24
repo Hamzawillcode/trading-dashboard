@@ -125,7 +125,7 @@ function ChainTable({ symbol, spot }: { symbol: string; spot: number }) {
         <div className="ml-auto flex items-center gap-3">
           <label className="flex items-center gap-1 text-muted">
             {/* A checkbox is a controlled input too: `checked` shows state, onChange updates it */}
-            <input type="checkbox" checked={showExtra} onChange={(e) => setShowExtra(e.target.checked)} className="accent-accent" />
+            <input type="checkbox" name="showGreeks" checked={showExtra} onChange={(e) => setShowExtra(e.target.checked)} className="accent-accent" />
             Γ &amp; Vega
           </label>
           <button type="button" onClick={scrollToAtm} className="rounded border border-border px-2 py-0.5 text-muted hover:text-text">

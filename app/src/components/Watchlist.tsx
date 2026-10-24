@@ -33,6 +33,7 @@ export function Watchlist({ items }: WatchlistProps) {
       {/* ===== Search box (a "controlled input") ===== */}
       <div className="p-2">
         <input
+          name="search" // a name identifies the field (Chrome's Issues tab flags inputs without one)
           value={search}                                // input ALWAYS shows the state...
           onChange={(e) => setSearch(e.target.value)}   // ...and every keystroke updates it
           placeholder="Search symbol…"
