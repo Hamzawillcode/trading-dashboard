@@ -1,5 +1,7 @@
 // config.ts: app-wide settings in ONE place.
 
+import type { SymbolRules } from './types'
+
 // The coins shown in the watchlist. Only the names live here: the prices come live from Binance.
 export type WatchlistItem = {
   symbol: string // Binance trading pair id, e.g. "BTCUSDT"
@@ -36,3 +38,22 @@ export const CHART_INTERVALS = ['1m', '5m', '15m', '1h', '4h', '1d'] as const
 
 // How many past candles to load when the chart opens (Binance allows up to 1000 per request)
 export const CANDLE_HISTORY_LIMIT = 500
+
+// ===================== TRADING RULES (Phase 5) =====================
+// Every exchange has rules about which orders it accepts. These are Binance's real values,
+// copied from GET /api/v3/exchangeInfo on 2026-10-24 (the "PRICE_FILTER", "LOT_SIZE" and
+// "NOTIONAL" filters). A production app would fetch them at startup, because they can change.
+export const SYMBOL_RULES: Record<string, SymbolRules> = {
+  //            price step         quantity step + minimum         min order value (USDT)
+  BTCUSDT: { tickSize: 0.01, stepSize: 0.00001, minQty: 0.00001, minNotional: 5 },
+  ETHUSDT: { tickSize: 0.01, stepSize: 0.0001, minQty: 0.0001, minNotional: 5 },
+  BNBUSDT: { tickSize: 0.01, stepSize: 0.001, minQty: 0.001, minNotional: 5 },
+  SOLUSDT: { tickSize: 0.01, stepSize: 0.001, minQty: 0.001, minNotional: 5 },
+  XRPUSDT: { tickSize: 0.0001, stepSize: 0.1, minQty: 0.1, minNotional: 5 },
+  ADAUSDT: { tickSize: 0.0001, stepSize: 0.1, minQty: 0.1, minNotional: 5 },
+  DOGEUSDT: { tickSize: 0.00001, stepSize: 1, minQty: 1, minNotional: 1 },
+  AVAXUSDT: { tickSize: 0.001, stepSize: 0.01, minQty: 0.01, minNotional: 5 },
+}
+
+// The simulated account starts with this much cash (in USDT)
+export const STARTING_CASH = 10_000

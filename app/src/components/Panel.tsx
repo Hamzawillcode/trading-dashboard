@@ -12,12 +12,13 @@ import type { ReactNode } from 'react'
 type PanelProps = {
   title: string
   children?: ReactNode // "?" = optional. ReactNode = anything React can render (elements, text...)
+  className?: string   // extra classes from the parent, e.g. where to sit in the page grid (Phase 5)
 }
 
-export function Panel({ title, children }: PanelProps) {
+export function Panel({ title, children, className = '' }: PanelProps) {
   return (
     // flex flex-col: stack title and content vertically. min-h-0 lets the inner list scroll.
-    <section className="flex min-h-0 min-w-0 flex-col rounded-lg border border-border bg-panel">
+    <section className={`flex min-h-0 min-w-0 flex-col rounded-lg border border-border bg-panel ${className}`}>
       {/* Title bar of the card */}
       <h2 className="border-b border-border px-3 py-2 text-sm font-semibold text-muted">
         {title}

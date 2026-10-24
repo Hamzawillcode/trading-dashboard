@@ -16,6 +16,7 @@ import { BinanceSocket } from '../services/BinanceSocket'
 import { FrameBatcher } from '../services/FrameBatcher'
 import { isTickerMessage, tickerStream, toTicker } from '../services/binanceMessages'
 import { useMarketStore } from '../store/marketStore'
+import { useTradingStore } from '../store/tradingStore'
 import type { Ticker } from '../types'
 
 export function useMarketFeed(symbols: string[]) {
@@ -26,6 +27,7 @@ export function useMarketFeed(symbols: string[]) {
     // getState() reads the store WITHOUT subscribing to it: we only need the actions here,
     // and we don't want this hook to cause re-renders.
     const { applyTickers, setStatus, setFeedStats, setSimulateDrop } = useMarketStore.getState()
+    const { matchOrders } = useTradingStore.getState()
 
     // Counters for the "msg/s → updates/s" display. Plain variables are enough: nothing renders them directly.
     let messages = 0
@@ -35,6 +37,7 @@ export function useMarketFeed(symbols: string[]) {
     const batcher = new FrameBatcher<Ticker>((batch) => {
       updates += 1
       applyTickers(batch)
+      matchOrders(batch) // Phase 5: did any waiting LIMIT order's price just get reached?
     })
 
     const socket = new BinanceSocket({

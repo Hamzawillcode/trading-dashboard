@@ -10,13 +10,18 @@
 //       Header    WatchlistRow   SymbolSummary   ChartPanel   DocumentTitle
 //      (each one subscribes to ONLY the slice it needs)
 //
+// Phase 5 adds a second store, tradingStore (cash, positions, orders), used by
+// OrderPanel and PortfolioPanel.
+//
 // App itself subscribes to NOTHING, so it renders once and never again. It just
 // starts the market feed and lays out the page.
 
 import { ChartPanel } from './components/ChartPanel'
 import { DocumentTitle } from './components/DocumentTitle'
 import { Header } from './components/Header'
+import { OrderPanel } from './components/OrderPanel'
 import { Panel } from './components/Panel'
+import { PortfolioPanel } from './components/PortfolioPanel'
 import { SymbolSummary } from './components/SymbolSummary'
 import { Watchlist } from './components/Watchlist'
 import { WATCHLIST } from './config'
@@ -38,12 +43,18 @@ export default function App() {
       <DocumentTitle />
       <Header />
 
-      {/* 3-column grid on large screens (lg:), stacked on small screens.
+      {/* Large screens (lg:): 3 columns × 2 rows. Small screens: everything stacked in 1 column.
+            ┌───────────┬───────────────┬─────────┐
+            │           │ Chart         │         │
+            │ Watchlist ├───────────────┤  Order  │   row 1: takes the rest (1fr)
+            │           │ Portfolio     │  Panel  │   row 2: 260px
+            └───────────┴───────────────┴─────────┘
+          lg:row-span-2 = the side panels stretch over both rows.
           min-h-0 lets the panels shrink and scroll inside instead of overflowing.
           grid-cols-1 = exactly one column that never grows wider than the screen. */}
-      <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto p-3 lg:grid-cols-[280px_1fr_300px]">
+      <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto p-3 lg:grid-cols-[280px_1fr_300px] lg:grid-rows-[1fr_260px]">
         {/* LEFT: watchlist (only the coin names are passed; rows read prices from the store) */}
-        <Panel title="Watchlist">
+        <Panel title="Watchlist" className="lg:row-span-2">
           <Watchlist items={WATCHLIST} />
         </Panel>
 
@@ -56,9 +67,15 @@ export default function App() {
           </div>
         </Panel>
 
-        {/* RIGHT: order panel, built in Phase 5 */}
-        <Panel title="Order Panel">
-          <p className="p-3 text-sm text-muted">Coming in Phase 5</p>
+        {/* RIGHT: the order ticket (Phase 5) */}
+        <Panel title="Order Panel" className="lg:row-span-2">
+          <OrderPanel />
+        </Panel>
+
+        {/* BOTTOM MIDDLE: account summary, positions with live P&L, orders (Phase 5).
+            lg:col-start-2 lg:row-start-2 = column 2, row 2 (under the chart) */}
+        <Panel title="Portfolio" className="min-h-64 lg:col-start-2 lg:row-start-2 lg:min-h-0">
+          <PortfolioPanel />
         </Panel>
       </main>
     </div>

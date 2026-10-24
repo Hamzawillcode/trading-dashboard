@@ -50,7 +50,7 @@
 - **Build:** a candlestick chart that loads history over REST and updates live, with an interval switcher
 - **Notes:** `notes/04-charts.md`
 
-### Phase 5: Orders & positions (2.5h)
+### Phase 5: Orders & positions (2.5h) ✅ built
 - **Study:** Market vs Limit orders · controlled inputs & forms · validation (tick size, min quantity, balance) · positions, average price, realized vs unrealized P&L
 - **Build:** an order panel (simulated, since a real exchange needs API keys), a positions table with live P&L, and pure functions for the P&L math
 - **Notes:** `notes/05-orders-pnl.md`
