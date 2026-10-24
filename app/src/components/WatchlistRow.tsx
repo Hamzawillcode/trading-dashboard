@@ -10,6 +10,7 @@
 import { memo } from 'react'
 import type { WatchlistItem } from '../config'
 import { useMarketStore } from '../store/marketStore'
+import { useUiStore } from '../store/uiStore'
 import { formatPercent } from '../utils/format'
 import { FlashingPrice } from './FlashingPrice'
 
@@ -27,6 +28,7 @@ export const WatchlistRow = memo(function WatchlistRow({ item }: WatchlistRowPro
   const isSelected = useMarketStore((s) => s.selectedSymbol === item.symbol)
   // Actions never change, so selecting one never causes a re-render
   const selectSymbol = useMarketStore((s) => s.selectSymbol)
+  const showTab = useUiStore((s) => s.showTab)
 
   // Green or red text for the 24h change. "?." = don't crash if ticker is still undefined
   const change = ticker?.changePercent
@@ -36,10 +38,16 @@ export const WatchlistRow = memo(function WatchlistRow({ item }: WatchlistRowPro
     // A <button> (not a <div>) so it works with the keyboard and screen readers.
     <button
       type="button"
-      onClick={() => selectSymbol(item.symbol)}
-      // The selected row gets a highlighted background
-      className={`grid w-full grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2 text-left text-sm hover:bg-white/5 ${
-        isSelected ? 'bg-white/10' : ''
+      // Phase 8: on a phone, picking a coin also jumps to the Chart screen.
+      // (On large screens every panel is visible at once, so the tab choice changes nothing.)
+      onClick={() => {
+        selectSymbol(item.symbol)
+        showTab('chart')
+      }}
+      // The selected row gets a highlighted background. bg-hover / bg-selected are theme tokens (Phase 8).
+      // py-2.5 lg:py-2: slightly taller rows on touch screens, easier to tap with a finger
+      className={`grid w-full grid-cols-[1fr_auto_auto] items-center gap-3 px-3 py-2.5 text-left text-sm lg:py-2 hover:bg-hover ${
+        isSelected ? 'bg-selected' : ''
       }`}
     >
       {/* Column 1: coin name, e.g. "BTC /USDT" */}

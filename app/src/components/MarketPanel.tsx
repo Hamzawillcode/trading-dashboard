@@ -41,11 +41,12 @@ export function MarketPanel() {
         ))}
       </div>
 
-      {/* ===== The chosen view.
-          Phones (stacked page): a FIXED height (h-[28rem] = 448px). Virtualization needs a bounded
-          height: in a box that grows to fit its content, every row is "visible" and all 201 render.
-          Large screens: fill whatever height is left in the panel (flex-1). ===== */}
-      <div className="flex h-[28rem] flex-col lg:h-auto lg:min-h-0 lg:flex-1">
+      {/* ===== The chosen view: fills whatever height is left in the panel (flex-1).
+          Virtualization needs a BOUNDED height (in a box that grows to fit its content, every row
+          is "visible" and all 201 render). Since Phase 8 the panel is bounded on phones too (it fills
+          the screen between header and tab bar), so the same flex-1 works on every size.
+          min-h-80 (320px): on a very short screen, keep the chart usable and let the page scroll. ===== */}
+      <div className="flex min-h-80 flex-1 flex-col">
         {view === 'chart' ? <ChartPanel /> : <OptionChain />}
       </div>
     </div>

@@ -65,7 +65,7 @@
 - **Build:** a 200+ strike chain priced live off the spot price with Black–Scholes, rendered through react-window
 - **Notes:** `notes/07-option-chain.md`
 
-### Phase 8: Responsive + dark UI (0.5h)
+### Phase 8: Responsive + dark UI (0.5h) ✅ built
 - **Study:** mobile-first breakpoints · CSS grid/flex · design tokens · Figma basics (frames, auto-layout, inspect panel)
 - **Build:** a mobile layout with tabs and polish
 - **Notes:** `notes/08-responsive-ui.md`

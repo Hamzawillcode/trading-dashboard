@@ -14,6 +14,7 @@
 // Two effects, two lifetimes:
 //   Effect 1, [] (once):                create the chart  → cleanup: destroy it
 //   Effect 2, [symbol, interval]:       load history + open live stream → cleanup: cancel both
+//   Effect 3, [theme] (Phase 8):        recolour the canvas when the theme changes
 
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -26,14 +27,37 @@ import {
 } from 'lightweight-charts'
 import { BINANCE_WS_URLS } from '../config'
 import { BinanceSocket } from '../services/BinanceSocket'
+import { useUiStore } from '../store/uiStore'
 import { fetchCandles } from '../services/binanceRest'
 import { isKlineMessage, klineStream, klineToCandle } from '../services/binanceMessages'
 import type { Candle, ChartInterval } from '../types'
 import { priceDecimals } from '../utils/format'
 
-// The chart draws on a canvas, so it can't use our Tailwind classes. These hex values
-// are copied from the design tokens in index.css (--color-up, --color-down, ...).
-const COLORS = { up: '#0ecb81', down: '#f6465d', text: '#848e9c', grid: '#2b313966' }
+// The chart draws on a canvas, so it can't use our Tailwind classes. Instead it READS the
+// design tokens (CSS variables from index.css) at runtime. One source of truth: change a token
+// (or switch theme) and the chart follows. getComputedStyle = "what values apply right now?"
+function readColors() {
+  const css = getComputedStyle(document.documentElement)
+  const token = (name: string) => css.getPropertyValue(`--color-${name}`).trim()
+  return {
+    up: token('up'),
+    down: token('down'),
+    text: token('muted'),
+    grid: `${token('border')}66`, // the border colour + "66" = 40% opacity (hex alpha), so the grid stays faint
+  }
+}
+
+// The colour options for the chart and the candle series, built from the tokens
+function chartColors() {
+  const c = readColors()
+  return {
+    chart: {
+      layout: { background: { type: ColorType.Solid, color: 'transparent' }, textColor: c.text },
+      grid: { vertLines: { color: c.grid }, horzLines: { color: c.grid } },
+    },
+    series: { upColor: c.up, downColor: c.down, wickUpColor: c.up, wickDownColor: c.down },
+  }
+}
 
 // The library wants `time` typed as its own UTCTimestamp type (a number with a "brand").
 // This converts our plain Candle into the shape the library expects.
@@ -48,26 +72,21 @@ export function CandleChart({ symbol, interval }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null)
+  const theme = useUiStore((s) => s.theme)
 
   // The only React state: what the overlay should say
   const [load, setLoad] = useState<'loading' | 'ready' | 'error'>('loading')
 
   // ===== EFFECT 1: create the chart ONCE, destroy it on unmount =====
   useEffect(() => {
+    const colors = chartColors()
     const chart = createChart(containerRef.current!, {
       autoSize: true, // follow the container's size (uses a ResizeObserver inside)
-      layout: { background: { type: ColorType.Solid, color: 'transparent' }, textColor: COLORS.text },
-      grid: { vertLines: { color: COLORS.grid }, horzLines: { color: COLORS.grid } },
+      ...colors.chart,
       timeScale: { timeVisible: true, secondsVisible: false }, // show hours:minutes on the time axis
     })
     // A chart can hold many series (candles, volume, lines...). We add one: candlesticks.
-    seriesRef.current = chart.addSeries(CandlestickSeries, {
-      upColor: COLORS.up,
-      downColor: COLORS.down,
-      wickUpColor: COLORS.up,
-      wickDownColor: COLORS.down,
-      borderVisible: false,
-    })
+    seriesRef.current = chart.addSeries(CandlestickSeries, { ...colors.series, borderVisible: false })
     chartRef.current = chart
 
     // CLEANUP: free the canvas, listeners and ResizeObserver (StrictMode runs this in dev, too)
@@ -141,6 +160,15 @@ export function CandleChart({ symbol, interval }: Props) {
       socket.close()
     }
   }, [symbol, interval])
+
+  // ===== EFFECT 3: the theme changed → re-read the tokens and recolour (no need to rebuild the chart).
+  // By now <html data-theme> is already updated (uiStore sets it inside the action), so the
+  // tokens we read are the NEW theme's. On the first run this just re-applies the same colours.
+  useEffect(() => {
+    const colors = chartColors()
+    chartRef.current?.applyOptions(colors.chart)
+    seriesRef.current?.applyOptions(colors.series)
+  }, [theme])
 
   return (
     // relative: lets the overlay below position itself on top of the chart

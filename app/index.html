@@ -2,16 +2,29 @@
 <!--
   index.html: the ONE and only HTML page of this app (that's what "Single Page App" means).
   The browser loads this first. React then draws the whole UI inside <div id="root">.
-  class="dark" turns on dark mode for the whole page.
+  data-theme="dark" picks the colour theme (Phase 8). index.css redefines the colour tokens for "light".
 -->
-<html lang="en" class="dark">
+<html lang="en" data-theme="dark">
   <head>
     <!-- charset: lets the page show any character (₹, €, emojis) correctly -->
     <meta charset="UTF-8" />
     <!-- The small icon shown in the browser tab -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- Makes the page fit phone screens instead of showing a zoomed-out desktop page -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Makes the page fit phone screens instead of showing a zoomed-out desktop page.
+         viewport-fit=cover: use the whole screen on phones with a notch; we pad the edges
+         ourselves with env(safe-area-inset-*) so nothing hides behind the notch or home bar. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Colours the phone's browser bar to match the page -->
+    <meta name="theme-color" content="#0b0e11" />
+    <!-- NO "FLASH OF THE WRONG THEME": this tiny script runs BEFORE the page is painted and before
+         React loads, and applies the theme saved by src/store/uiStore.ts (same localStorage key).
+         Without it, a light-theme user would see a dark flash on every reload. -->
+    <script>
+      try {
+        var saved = JSON.parse(localStorage.getItem('trading-dashboard-ui'))
+        if (saved && saved.state && saved.state.theme) document.documentElement.dataset.theme = saved.state.theme
+      } catch (e) {}
+    </script>
     <!-- Text shown on the browser tab -->
     <title>Trading Dashboard</title>
   </head>

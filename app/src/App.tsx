@@ -16,14 +16,23 @@
 //
 // App itself subscribes to NOTHING, so it renders once and never again. It just
 // starts the market feed and lays out the page.
+//
+// Phase 8: RESPONSIVE layout, built MOBILE-FIRST. The plain classes describe the phone layout,
+// and lg: classes (1024px and wider) change it into the desktop grid:
+//   • phones/tablets: header, ONE screen at a time, bottom tab bar (MobileNav)
+//   • desktop:        header, all panels in a 3-column grid, no tab bar
+// Each grid area is wrapped in a <Screen tab="..."> that hides itself on small screens when its tab
+// isn't the active one.
 
 import { DocumentTitle } from './components/DocumentTitle'
 import { Header } from './components/Header'
 import { MarketPanel } from './components/MarketPanel'
+import { MobileNav } from './components/MobileNav'
 import { OrderBook } from './components/OrderBook'
 import { OrderPanel } from './components/OrderPanel'
 import { Panel } from './components/Panel'
 import { PortfolioPanel } from './components/PortfolioPanel'
+import { Screen } from './components/Screen'
 import { Watchlist } from './components/Watchlist'
 import { WATCHLIST } from './config'
 import { useMarketFeed } from './hooks/useMarketFeed'
@@ -36,15 +45,16 @@ export default function App() {
   useMarketFeed(SYMBOLS)
 
   return (
-    // flex-col: header on top, main area below.
-    // Phones: min-h-screen, so the page grows and you scroll it normally.
-    // Large screens (lg:h-screen): exactly one screen tall, and each panel scrolls on its own.
-    <div className="flex min-h-screen flex-col lg:h-screen">
+    // flex-col: header on top, main area in the middle, (on phones) the tab bar at the bottom.
+    // h-dvh: exactly one screen tall on EVERY size. "dvh" = DYNAMIC viewport height: on phones it
+    // shrinks/grows as the browser's address bar hides/shows (plain 100vh ignores that bar, so
+    // the bottom tab bar would end up hidden behind it).
+    <div className="flex h-dvh flex-col">
       {/* Invisible: keeps the browser tab title showing the live price */}
       <DocumentTitle />
       <Header />
 
-      {/* Large screens (lg:): 3 columns × 2 rows. Small screens: everything stacked in 1 column.
+      {/* Large screens (lg:): 3 columns × 2 rows. Small screens: one column with ONE visible screen.
             ┌───────────┬───────────────┬─────────┐
             │           │ Market        │  Order  │
             │ Watchlist │               │  Book   │   row 1: takes the rest (1fr)
@@ -56,35 +66,46 @@ export default function App() {
            so the order book takes whatever height the order form leaves.)
           lg:row-span-2 = the side panels stretch over both rows.
           min-h-0 lets the panels shrink and scroll inside instead of overflowing.
-          grid-cols-1 = exactly one column that never grows wider than the screen. */}
+          On phones only one Screen is visible, so the grid has a single row, and a grid row
+          STRETCHES to fill the container: the visible screen is exactly as tall as the space
+          between the header and the tab bar. overflow-y-auto scrolls it if it needs more. */}
       <main className="grid min-h-0 flex-1 grid-cols-1 gap-3 overflow-y-auto p-3 lg:grid-cols-[280px_1fr_300px] lg:grid-rows-[1fr_260px]">
         {/* LEFT: watchlist (only the coin names are passed; rows read prices from the store) */}
-        <Panel title="Watchlist" className="lg:row-span-2">
-          <Watchlist items={WATCHLIST} />
-        </Panel>
+        <Screen tab="markets" className="lg:row-span-2">
+          <Panel title="Watchlist" className="flex-1">
+            <Watchlist items={WATCHLIST} />
+          </Panel>
+        </Screen>
 
         {/* MIDDLE: live price + stats, then Chart (Phase 4) or Option chain (Phase 7) tabs */}
-        <Panel title="Market">
-          <MarketPanel />
-        </Panel>
+        <Screen tab="chart">
+          <Panel title="Market" className="flex-1">
+            <MarketPanel />
+          </Panel>
+        </Screen>
 
         {/* RIGHT: order book on top (Phase 6), order ticket below (Phase 5).
-            flex-col + the book's flex-1: the book fills the height the form doesn't use. */}
-        <div className="flex min-h-0 flex-col gap-3 lg:row-span-2">
+            The book's flex-1: it fills the height the form doesn't use. */}
+        <Screen tab="trade" className="gap-3 lg:row-span-2">
           <Panel title="Order Book" className="min-h-96 flex-1 lg:min-h-0">
             <OrderBook />
           </Panel>
           <Panel title="Order Panel" className="shrink-0">
             <OrderPanel />
           </Panel>
-        </div>
+        </Screen>
 
         {/* BOTTOM MIDDLE: account summary, positions with live P&L, orders (Phase 5).
             lg:col-start-2 lg:row-start-2 = column 2, row 2 (under the chart) */}
-        <Panel title="Portfolio" className="min-h-64 lg:col-start-2 lg:row-start-2 lg:min-h-0">
-          <PortfolioPanel />
-        </Panel>
+        <Screen tab="portfolio" className="lg:col-start-2 lg:row-start-2">
+          <Panel title="Portfolio" className="min-h-64 flex-1 lg:min-h-0">
+            <PortfolioPanel />
+          </Panel>
+        </Screen>
       </main>
+
+      {/* Phones/tablets only: the bottom tab bar that picks the visible Screen */}
+      <MobileNav />
     </div>
   )
 }

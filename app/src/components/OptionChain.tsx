@@ -210,7 +210,7 @@ function ChainRow({ index, style, ariaAttributes, rows, spot, T, columns, templa
       {...ariaAttributes}
       // style from react-window (position) + our grid layout, merged into one object
       style={{ ...style, gridTemplateColumns: template }}
-      className={`grid items-center tabular-nums hover:bg-white/5 ${isAtm ? 'border-y border-accent/40' : ''}`}
+      className={`grid items-center tabular-nums hover:bg-hover ${isAtm ? 'border-y border-accent/40' : ''}`}
     >
       {columns.map((c) => (
         <span key={`c-${c.label}`} className={`h-full px-2 text-right leading-6 ${callItm ? 'bg-up/5' : ''}`}>

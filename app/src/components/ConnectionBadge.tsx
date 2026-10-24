@@ -34,11 +34,12 @@ export function ConnectionBadge() {
         )}
       </span>
 
-      {/* DEMO button: kills the socket so you can WATCH the reconnect + resubscribe work */}
+      {/* DEMO button: kills the socket so you can WATCH the reconnect + resubscribe work.
+          max-sm:hidden: a developer tool, so it's hidden on phones (under 640px) to save space */}
       <button
         type="button"
         onClick={onSimulateDrop}
-        className="rounded border border-border px-2 py-1 text-muted hover:text-text"
+        className="rounded border border-border px-2 py-1 text-muted hover:text-text max-sm:hidden"
         title="Close the WebSocket as if the network dropped"
       >
         Simulate drop
