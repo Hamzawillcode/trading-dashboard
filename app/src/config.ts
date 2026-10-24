@@ -25,3 +25,14 @@ export const BINANCE_WS_URLS = [
   'wss://stream.binance.com:9443/ws',
   'wss://data-stream.binance.vision/ws',
 ]
+
+// Binance public REST endpoints, for HISTORY (past candles). Same idea: try them in order.
+// data-api.binance.vision is the market-data-only host, and it allows calls from browsers (CORS).
+export const BINANCE_REST_URLS = ['https://data-api.binance.vision', 'https://api.binance.com']
+
+// The candle sizes the chart offers. Strings are exactly what Binance expects ("1m" = 1 minute).
+// "as const" makes TypeScript treat them as fixed values, not just any string.
+export const CHART_INTERVALS = ['1m', '5m', '15m', '1h', '4h', '1d'] as const
+
+// How many past candles to load when the chart opens (Binance allows up to 1000 per request)
+export const CANDLE_HISTORY_LIMIT = 500

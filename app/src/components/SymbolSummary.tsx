@@ -1,5 +1,4 @@
-// SymbolSummary.tsx: shows details of the SELECTED coin in the middle panel.
-// It's a placeholder until the real candlestick chart arrives in Phase 4.
+// SymbolSummary.tsx: the big live price + 24h stats of the SELECTED coin, above the chart.
 //
 // Phase 3: it reads the selection and the live ticker straight from the store,
 // so App doesn't need to pass anything down. (In Phase 1 the selection travelled
@@ -29,7 +28,7 @@ export function SymbolSummary() {
   ]
 
   return (
-    <div className="flex h-full flex-col gap-6 p-4">
+    <div className="flex flex-col gap-4">
       {/* ===== Big price display ===== */}
       <div>
         <p className="text-sm text-muted">
@@ -52,11 +51,6 @@ export function SymbolSummary() {
           </div>
         ))}
       </dl>
-
-      {/* ===== Placeholder for the chart ===== */}
-      <div className="flex min-h-40 flex-1 items-center justify-center rounded-md border border-dashed border-border text-sm text-muted">
-        Candlestick chart comes in Phase 4
-      </div>
     </div>
   )
 }

@@ -3,7 +3,7 @@
 // (to avoid floating-point precision loss), so we convert them into our clean Ticker type.
 
 import { WATCHLIST } from '../config'
-import type { Ticker } from '../types'
+import type { Candle, Ticker } from '../types'
 
 // Shape of a Binance "24hrTicker" stream message (only the fields we use).
 // Docs: Binance Spot API → WebSocket Streams → "Individual Symbol Ticker Streams"
@@ -43,3 +43,48 @@ export function toTicker(raw: RawTickerMessage): Ticker | null {
 
 // Stream names Binance expects: lowercase symbol + "@ticker", e.g. "btcusdt@ticker"
 export const tickerStream = (symbol: string) => `${symbol.toLowerCase()}@ticker`
+
+// ===================== CANDLES (Phase 4) =====================
+
+// Binance sends times in UTC, and the chart library draws whatever time we give it AS IS.
+// To show the user's LOCAL time on the axis, we shift every timestamp by the timezone offset.
+// getTimezoneOffset() is in minutes and NEGATIVE east of UTC (India = -330), so we subtract it.
+const TZ_OFFSET_SEC = new Date().getTimezoneOffset() * 60
+const toChartTime = (ms: number) => ms / 1000 - TZ_OFFSET_SEC
+
+// Shape of a "kline" (= candle) stream message. Docs: "Kline/Candlestick Streams".
+// Binance pushes the CURRENT, still-forming candle every ~2 seconds, and x=true when it closes.
+export type RawKlineMessage = {
+  e: 'kline'
+  s: string // symbol
+  k: {
+    t: number  // candle open time (ms)
+    i: string  // interval, e.g. "1m"
+    o: string  // open
+    h: string  // high
+    l: string  // low
+    c: string  // close (= the latest price while the candle is still forming)
+    x: boolean // is this candle finished?
+  }
+}
+
+export function isKlineMessage(msg: unknown): msg is RawKlineMessage {
+  return typeof msg === 'object' && msg !== null && (msg as { e?: string }).e === 'kline'
+}
+
+export function klineToCandle({ k }: RawKlineMessage): Candle {
+  return { time: toChartTime(k.t), open: Number(k.o), high: Number(k.h), low: Number(k.l), close: Number(k.c) }
+}
+
+// The REST endpoint returns each candle as an ARRAY, not an object (it's smaller to send):
+//   [openTime, "open", "high", "low", "close", "volume", closeTime, ...]
+export type RawKlineRow = [number, string, string, string, string, ...unknown[]]
+
+// Array destructuring picks out the positions we need
+export function restRowToCandle([t, o, h, l, c]: RawKlineRow): Candle {
+  return { time: toChartTime(t), open: Number(o), high: Number(h), low: Number(l), close: Number(c) }
+}
+
+// Stream name for live candles, e.g. "btcusdt@kline_1m"
+export const klineStream = (symbol: string, interval: string) =>
+  `${symbol.toLowerCase()}@kline_${interval}`

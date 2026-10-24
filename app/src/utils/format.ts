@@ -5,10 +5,16 @@
 
 const DASH = '—'
 
-// Price: show more decimals for cheap coins (0.5234) and fewer for expensive ones (67,250.50)
+// How many decimals a price deserves: more for cheap coins (0.5234), fewer for expensive ones (67,250.50).
+// Shared by formatPrice and the chart's price axis (Phase 4).
+export function priceDecimals(price: number): number {
+  return price >= 1000 ? 2 : price >= 1 ? 3 : 4
+}
+
+// Price with thousands separators and the right number of decimals
 export function formatPrice(price: number | undefined): string {
   if (price === undefined) return DASH
-  const decimals = price >= 1000 ? 2 : price >= 1 ? 3 : 4
+  const decimals = priceDecimals(price)
   // toLocaleString adds thousands separators: 67250.5 → "67,250.50"
   return price.toLocaleString('en-US', {
     minimumFractionDigits: decimals,

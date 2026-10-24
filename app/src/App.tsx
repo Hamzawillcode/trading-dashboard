@@ -6,13 +6,14 @@
 // Phase 3: the state moved into a GLOBAL STORE (store/marketStore.ts, Zustand).
 //
 //                    marketStore  (selection, tickers, connection status)
-//          ┌───────────┬──────┴──────┬──────────────┐
-//       Header    WatchlistRow   SymbolSummary   DocumentTitle
+//          ┌───────────┬──────┴──────┬──────────────┬─────────────┐
+//       Header    WatchlistRow   SymbolSummary   ChartPanel   DocumentTitle
 //      (each one subscribes to ONLY the slice it needs)
 //
 // App itself subscribes to NOTHING, so it renders once and never again. It just
 // starts the market feed and lays out the page.
 
+import { ChartPanel } from './components/ChartPanel'
 import { DocumentTitle } from './components/DocumentTitle'
 import { Header } from './components/Header'
 import { Panel } from './components/Panel'
@@ -46,9 +47,13 @@ export default function App() {
           <Watchlist items={WATCHLIST} />
         </Panel>
 
-        {/* MIDDLE: details of the selected coin (the chart replaces this in Phase 4) */}
+        {/* MIDDLE: live price + stats on top, candlestick chart filling the rest (Phase 4).
+            Two SIBLINGS, so price ticks (SymbolSummary) never re-render the chart. */}
         <Panel title="Chart">
-          <SymbolSummary />
+          <div className="flex h-full flex-col gap-4 p-4">
+            <SymbolSummary />
+            <ChartPanel />
+          </div>
         </Panel>
 
         {/* RIGHT: order panel, built in Phase 5 */}

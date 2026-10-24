@@ -45,7 +45,7 @@
 - **Build:** a market store, ticks batched per frame, a live watchlist with green/red flashes
 - **Notes:** `notes/03-state-and-batching.md`
 
-### Phase 4: Charts (1.5h)
+### Phase 4: Charts (1.5h) ✅ built
 - **Study:** OHLC candles & intervals · REST vs WebSocket (history vs live) · `fetch`, Promises, async/await · `useRef` (why charts need direct DOM access)
 - **Build:** a candlestick chart that loads history over REST and updates live, with an interval switcher
 - **Notes:** `notes/04-charts.md`
