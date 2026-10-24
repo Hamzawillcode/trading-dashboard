@@ -3,7 +3,7 @@
 // (to avoid floating-point precision loss), so we convert them into our clean Ticker type.
 
 import { WATCHLIST } from '../config'
-import type { Candle, Ticker } from '../types'
+import type { Candle, DepthDiff, DepthSnapshot, Ticker } from '../types'
 
 // Shape of a Binance "24hrTicker" stream message (only the fields we use).
 // Docs: Binance Spot API → WebSocket Streams → "Individual Symbol Ticker Streams"
@@ -88,3 +88,42 @@ export function restRowToCandle([t, o, h, l, c]: RawKlineRow): Candle {
 // Stream name for live candles, e.g. "btcusdt@kline_1m"
 export const klineStream = (symbol: string, interval: string) =>
   `${symbol.toLowerCase()}@kline_${interval}`
+
+// ===================== ORDER BOOK (Phase 6) =====================
+
+// "[price, qty]" string pairs → number pairs
+const toPairs = (rows: [string, string][]): [number, number][] =>
+  rows.map(([p, q]) => [Number(p), Number(q)])
+
+// REST GET /api/v3/depth answer
+export type RawDepthSnapshot = {
+  lastUpdateId: number
+  bids: [string, string][]
+  asks: [string, string][]
+}
+
+export function toDepthSnapshot(raw: RawDepthSnapshot): DepthSnapshot {
+  return { lastUpdateId: raw.lastUpdateId, bids: toPairs(raw.bids), asks: toPairs(raw.asks) }
+}
+
+// WebSocket "<symbol>@depth@100ms" message (Docs: "Diff. Depth Stream").
+// Every 100ms: all the levels that CHANGED, and the range of update ids they cover.
+export type RawDepthMessage = {
+  e: 'depthUpdate'
+  s: string            // symbol
+  U: number            // first update id in this message
+  u: number            // final update id in this message
+  b: [string, string][] // changed bids [price, new quantity]
+  a: [string, string][] // changed asks
+}
+
+export function isDepthMessage(msg: unknown): msg is RawDepthMessage {
+  return typeof msg === 'object' && msg !== null && (msg as { e?: string }).e === 'depthUpdate'
+}
+
+export function toDepthDiff(raw: RawDepthMessage): DepthDiff {
+  return { firstUpdateId: raw.U, finalUpdateId: raw.u, bids: toPairs(raw.b), asks: toPairs(raw.a) }
+}
+
+// Stream name, e.g. "btcusdt@depth@100ms" (diffs pushed every 100ms)
+export const depthStream = (symbol: string) => `${symbol.toLowerCase()}@depth@100ms`

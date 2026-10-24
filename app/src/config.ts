@@ -57,3 +57,7 @@ export const SYMBOL_RULES: Record<string, SymbolRules> = {
 
 // The simulated account starts with this much cash (in USDT)
 export const STARTING_CASH = 10_000
+
+// ===================== ORDER BOOK (Phase 6) =====================
+export const BOOK_SNAPSHOT_LIMIT = 1000 // levels per side in the REST snapshot (Binance max is 5000)
+export const BOOK_LEVELS_SHOWN = 12     // max levels per side drawn (fewer if the panel is short)

@@ -72,6 +72,35 @@ export type SymbolRules = {
   minNotional: number // smallest order VALUE (price × quantity) allowed, in USDT
 }
 
+// ===================== ORDER BOOK (Phase 6) =====================
+
+// One price level: "at this price, this much is waiting to be bought/sold"
+export type Level = { price: number; quantity: number }
+
+// The full book at one moment, from REST. lastUpdateId = the book's "version number".
+export type DepthSnapshot = {
+  lastUpdateId: number
+  bids: [number, number][] // [price, quantity] pairs, best (highest) first
+  asks: [number, number][] // best (lowest) first
+}
+
+// One change message from the WebSocket: "these levels changed, between versions U and u"
+export type DepthDiff = {
+  firstUpdateId: number    // Binance's "U"
+  finalUpdateId: number    // Binance's "u"
+  bids: [number, number][] // quantity 0 = that level is now EMPTY (remove it)
+  asks: [number, number][]
+}
+
+// What the order book UI shows (just the top levels, not the whole book)
+export type OrderBookView = {
+  bids: Level[]
+  asks: Level[]
+  lastUpdateId: number
+  status: 'syncing' | 'live' | 'error'
+  resyncs: number // how many times a sequence gap forced us to start over
+}
+
 // The states our WebSocket connection can be in (a "union type": exactly one of these strings)
 export type ConnectionState = 'connecting' | 'connected' | 'reconnecting' | 'disconnected'
 

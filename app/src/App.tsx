@@ -19,6 +19,7 @@
 import { ChartPanel } from './components/ChartPanel'
 import { DocumentTitle } from './components/DocumentTitle'
 import { Header } from './components/Header'
+import { OrderBook } from './components/OrderBook'
 import { OrderPanel } from './components/OrderPanel'
 import { Panel } from './components/Panel'
 import { PortfolioPanel } from './components/PortfolioPanel'
@@ -45,10 +46,14 @@ export default function App() {
 
       {/* Large screens (lg:): 3 columns × 2 rows. Small screens: everything stacked in 1 column.
             ┌───────────┬───────────────┬─────────┐
-            │           │ Chart         │         │
-            │ Watchlist ├───────────────┤  Order  │   row 1: takes the rest (1fr)
-            │           │ Portfolio     │  Panel  │   row 2: 260px
+            │           │ Chart         │  Order  │
+            │ Watchlist │               │  Book   │   row 1: takes the rest (1fr)
+            │           ├───────────────┼─────────┤
+            │           │ Portfolio     │  Order  │   row 2: 260px
+            │           │               │  Panel  │
             └───────────┴───────────────┴─────────┘
+          (The right column is ONE grid cell spanning both rows, split by its own flex column,
+           so the order book takes whatever height the order form leaves.)
           lg:row-span-2 = the side panels stretch over both rows.
           min-h-0 lets the panels shrink and scroll inside instead of overflowing.
           grid-cols-1 = exactly one column that never grows wider than the screen. */}
@@ -67,10 +72,16 @@ export default function App() {
           </div>
         </Panel>
 
-        {/* RIGHT: the order ticket (Phase 5) */}
-        <Panel title="Order Panel" className="lg:row-span-2">
-          <OrderPanel />
-        </Panel>
+        {/* RIGHT: order book on top (Phase 6), order ticket below (Phase 5).
+            flex-col + the book's flex-1: the book fills the height the form doesn't use. */}
+        <div className="flex min-h-0 flex-col gap-3 lg:row-span-2">
+          <Panel title="Order Book" className="min-h-96 flex-1 lg:min-h-0">
+            <OrderBook />
+          </Panel>
+          <Panel title="Order Panel" className="shrink-0">
+            <OrderPanel />
+          </Panel>
+        </div>
 
         {/* BOTTOM MIDDLE: account summary, positions with live P&L, orders (Phase 5).
             lg:col-start-2 lg:row-start-2 = column 2, row 2 (under the chart) */}

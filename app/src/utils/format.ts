@@ -64,3 +64,10 @@ export function formatQuantity(q: number, symbol: string): string {
 export function pnlColor(v: number): string {
   return v > 0.004 ? 'text-up' : v < -0.004 ? 'text-down' : 'text-muted'
 }
+
+// Phase 6: a price with exactly the symbol's tick decimals (order book rows line up neatly),
+// e.g. BTC (tick 0.01) → "80,127.56", DOGE (tick 0.00001) → "0.16234"
+export function formatTickPrice(price: number, symbol: string): string {
+  const d = decimalsOf(SYMBOL_RULES[symbol].tickSize)
+  return price.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d })
+}

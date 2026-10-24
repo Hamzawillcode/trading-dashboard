@@ -55,7 +55,7 @@
 - **Build:** an order panel (simulated, since a real exchange needs API keys), a positions table with live P&L, and pure functions for the P&L math
 - **Notes:** `notes/05-orders-pnl.md`
 
-### Phase 6: Order book (1.5h)
+### Phase 6: Order book (1.5h) ✅ built
 - **Study:** bids/asks, spread, depth · snapshot + diff updates · sequence numbers & gap detection · why sorted maps
 - **Build:** a live order book that follows Binance's documented "manage a local order book" algorithm
 - **Notes:** `notes/06-order-book.md`
