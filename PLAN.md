@@ -40,7 +40,7 @@
 - **Build:** a `BinanceSocket` class that handles heartbeat, reconnect and resubscribe, plus a connection-status badge
 - **Notes:** `notes/02-websockets.md`
 
-### Phase 3: State + performance (2h)
+### Phase 3: State + performance (2h) ✅ built
 - **Study:** prop drilling, and why global state solves it · Zustand basics · Redux Toolkit idea (store, slice, action, reducer) to compare · the browser render loop, 60 FPS = 16.6 ms · `requestAnimationFrame` · selectors & avoiding re-renders
 - **Build:** a market store, ticks batched per frame, a live watchlist with green/red flashes
 - **Notes:** `notes/03-state-and-batching.md`

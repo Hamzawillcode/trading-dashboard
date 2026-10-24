@@ -12,6 +12,9 @@ export type Ticker = WatchlistItem & {
   high: number          // highest price in the last 24h
   low: number           // lowest price in the last 24h
   volume: number        // how much of the base coin was traded in the last 24h
+  // Which way the price moved on the last change (drives the green/red flash).
+  // Filled in by the store (Phase 3). "?" = missing until there are two prices to compare.
+  move?: 'up' | 'down'
 }
 
 // Map of symbol → latest ticker, e.g. { BTCUSDT: {...}, ETHUSDT: {...} }.

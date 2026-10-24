@@ -3,20 +3,19 @@
 //   1. LOCAL STATE (useState): the search text belongs only to this component
 //   2. CONTROLLED INPUT: the <input> shows the state, and typing updates the state
 //   3. RENDERING LISTS: .map() turns an array of data into an array of rows, each with a `key`
+//
+// Phase 3: the watchlist no longer receives prices or the selection as props.
+// Each row reads its own data from the store, so a price tick doesn't re-render this list.
 
 import { useState } from 'react'
 import type { WatchlistItem } from '../config'
-import type { TickerMap } from '../types'
 import { WatchlistRow } from './WatchlistRow'
 
 type WatchlistProps = {
-  items: WatchlistItem[]             // which coins to list (names)
-  tickers: TickerMap                 // live prices, looked up by symbol
-  selectedSymbol: string
-  onSelect: (symbol: string) => void // passed straight through to every row
+  items: WatchlistItem[] // which coins to list (names only)
 }
 
-export function Watchlist({ items, tickers, selectedSymbol, onSelect }: WatchlistProps) {
+export function Watchlist({ items }: WatchlistProps) {
   // useState('') creates a piece of state that starts as an empty string.
   //   search    → the current value
   //   setSearch → the function to change it. Calling it RE-RENDERS this component.
@@ -54,13 +53,7 @@ export function Watchlist({ items, tickers, selectedSymbol, onSelect }: Watchlis
             key={item.symbol}: a stable, unique id so React can tell which row is which
             when the list changes (don't use the array index for lists that reorder or filter). */}
         {filtered.map((item) => (
-          <WatchlistRow
-            key={item.symbol}
-            item={item}
-            ticker={tickers[item.symbol]}
-            isSelected={item.symbol === selectedSymbol}
-            onSelect={onSelect}
-          />
+          <WatchlistRow key={item.symbol} item={item} />
         ))}
 
         {/* CONDITIONAL RENDERING: show this message only when nothing matches */}

@@ -1,18 +1,23 @@
 // SymbolSummary.tsx: shows details of the SELECTED coin in the middle panel.
 // It's a placeholder until the real candlestick chart arrives in Phase 4.
-// It proves that the selection made in the Watchlist reaches a SIBLING component
-// (they share state through their common parent, App).
+//
+// Phase 3: it reads the selection and the live ticker straight from the store,
+// so App doesn't need to pass anything down. (In Phase 1 the selection travelled
+// Watchlist → App → SymbolSummary; now both just talk to the store.)
 
-import type { WatchlistItem } from '../config'
-import type { Ticker } from '../types'
+import { WATCHLIST } from '../config'
+import { useMarketStore } from '../store/marketStore'
 import { formatPercent, formatPrice, formatVolume } from '../utils/format'
+import { FlashingPrice } from './FlashingPrice'
 
-type SymbolSummaryProps = {
-  item: WatchlistItem
-  ticker: Ticker | undefined // undefined until live data arrives
-}
+export function SymbolSummary() {
+  const selectedSymbol = useMarketStore((s) => s.selectedSymbol)
+  // Re-renders only when the SELECTED coin's ticker changes, not when other coins tick
+  const ticker = useMarketStore((s) => s.tickers[s.selectedSymbol])
 
-export function SymbolSummary({ item, ticker }: SymbolSummaryProps) {
+  // The coin's names. "!" = we know it exists, because the symbol always comes from WATCHLIST.
+  const item = WATCHLIST.find((i) => i.symbol === selectedSymbol)!
+
   // Colour: grey while loading, then green or red
   const color = !ticker ? 'text-muted' : ticker.changePercent >= 0 ? 'text-up' : 'text-down'
 
@@ -30,7 +35,10 @@ export function SymbolSummary({ item, ticker }: SymbolSummaryProps) {
         <p className="text-sm text-muted">
           {item.base}/{item.quote}
         </p>
-        <p className={`text-3xl font-bold tabular-nums ${color}`}>{formatPrice(ticker?.price)}</p>
+        {/* -mx-1 cancels FlashingPrice's px-1 so the number lines up with the text above */}
+        <p className={`-mx-1 text-3xl font-bold ${color}`}>
+          <FlashingPrice price={ticker?.price} move={ticker?.move} />
+        </p>
         <p className={color}>{ticker ? formatPercent(ticker.changePercent) : 'Waiting for live data…'}</p>
       </div>
 

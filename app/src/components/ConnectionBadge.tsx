@@ -1,7 +1,9 @@
 // ConnectionBadge.tsx: a small coloured dot + label showing the WebSocket state.
 // Users of a trading app must KNOW when prices are stale, so this is a real feature, not decoration.
+// Phase 3: reads the status and the demo action from the store instead of props.
 
-import type { ConnectionState, ConnectionStatus } from '../types'
+import { useMarketStore } from '../store/marketStore'
+import type { ConnectionState } from '../types'
 
 // Lookup table: state → colour + text. Cleaner than a chain of if/else.
 // Record<ConnectionState, ...> makes TypeScript complain if we forget any state.
@@ -12,12 +14,9 @@ const STYLES: Record<ConnectionState, { dot: string; label: string }> = {
   disconnected: { dot: 'bg-down', label: 'Offline' },
 }
 
-type Props = {
-  status: ConnectionStatus
-  onSimulateDrop: () => void
-}
-
-export function ConnectionBadge({ status, onSimulateDrop }: Props) {
+export function ConnectionBadge() {
+  const status = useMarketStore((s) => s.status)
+  const onSimulateDrop = useMarketStore((s) => s.simulateDrop)
   const { dot, label } = STYLES[status.state]
 
   return (

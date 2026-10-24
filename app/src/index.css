@@ -23,6 +23,22 @@
   --color-up: #0ecb81;      /* green: price up / buy / profit */
   --color-down: #f6465d;    /* red: price down / sell / loss */
   --color-accent: #f0b90b;  /* yellow brand colour (title, highlights) */
+
+  /* ANIMATIONS (Phase 3): a short green/red background flash when a price ticks.
+     Tailwind turns "--animate-flash-up" into the class "animate-flash-up". */
+  --animate-flash-up: flash-up 0.8s ease-out;
+  --animate-flash-down: flash-down 0.8s ease-out;
+
+  /* Keyframes: start with a see-through green/red background, fade to nothing.
+     color-mix(... 30%, transparent) = the up/down colour at 30% strength. */
+  @keyframes flash-up {
+    from { background-color: color-mix(in srgb, var(--color-up) 30%, transparent); }
+    to { background-color: transparent; }
+  }
+  @keyframes flash-down {
+    from { background-color: color-mix(in srgb, var(--color-down) 30%, transparent); }
+    to { background-color: transparent; }
+  }
 }
 
 /* Base style for the whole page body */
