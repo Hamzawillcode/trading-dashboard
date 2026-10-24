@@ -19,8 +19,8 @@ export function ChartPanel() {
   const [interval, pickInterval] = useState<ChartInterval>('1m')
 
   return (
-    // flex-col: buttons on top, chart fills the rest. min-h-80 (320px) so it's usable on phones too
-    <div className="flex min-h-80 flex-1 flex-col gap-2">
+    // flex-col: buttons on top, chart fills the rest (the parent MarketPanel sets the minimum height)
+    <div className="flex flex-1 flex-col gap-2">
       {/* ===== Interval switcher: a row of toggle buttons ===== */}
       <div className="flex gap-1">
         {CHART_INTERVALS.map((iv) => (

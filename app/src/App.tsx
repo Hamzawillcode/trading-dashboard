@@ -8,6 +8,7 @@
 //                    marketStore  (selection, tickers, connection status)
 //          ┌───────────┬──────┴──────┬──────────────┬─────────────┐
 //       Header    WatchlistRow   SymbolSummary   ChartPanel   DocumentTitle
+//                                (inside MarketPanel, with OptionChain)
 //      (each one subscribes to ONLY the slice it needs)
 //
 // Phase 5 adds a second store, tradingStore (cash, positions, orders), used by
@@ -16,14 +17,13 @@
 // App itself subscribes to NOTHING, so it renders once and never again. It just
 // starts the market feed and lays out the page.
 
-import { ChartPanel } from './components/ChartPanel'
 import { DocumentTitle } from './components/DocumentTitle'
 import { Header } from './components/Header'
+import { MarketPanel } from './components/MarketPanel'
 import { OrderBook } from './components/OrderBook'
 import { OrderPanel } from './components/OrderPanel'
 import { Panel } from './components/Panel'
 import { PortfolioPanel } from './components/PortfolioPanel'
-import { SymbolSummary } from './components/SymbolSummary'
 import { Watchlist } from './components/Watchlist'
 import { WATCHLIST } from './config'
 import { useMarketFeed } from './hooks/useMarketFeed'
@@ -46,7 +46,7 @@ export default function App() {
 
       {/* Large screens (lg:): 3 columns × 2 rows. Small screens: everything stacked in 1 column.
             ┌───────────┬───────────────┬─────────┐
-            │           │ Chart         │  Order  │
+            │           │ Market        │  Order  │
             │ Watchlist │               │  Book   │   row 1: takes the rest (1fr)
             │           ├───────────────┼─────────┤
             │           │ Portfolio     │  Order  │   row 2: 260px
@@ -63,13 +63,9 @@ export default function App() {
           <Watchlist items={WATCHLIST} />
         </Panel>
 
-        {/* MIDDLE: live price + stats on top, candlestick chart filling the rest (Phase 4).
-            Two SIBLINGS, so price ticks (SymbolSummary) never re-render the chart. */}
-        <Panel title="Chart">
-          <div className="flex h-full flex-col gap-4 p-4">
-            <SymbolSummary />
-            <ChartPanel />
-          </div>
+        {/* MIDDLE: live price + stats, then Chart (Phase 4) or Option chain (Phase 7) tabs */}
+        <Panel title="Market">
+          <MarketPanel />
         </Panel>
 
         {/* RIGHT: order book on top (Phase 6), order ticket below (Phase 5).

@@ -71,3 +71,16 @@ export function formatTickPrice(price: number, symbol: string): string {
   const d = decimalsOf(SYMBOL_RULES[symbol].tickSize)
   return price.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d })
 }
+
+// Phase 7: option prices and Greeks. They can be tiny (0.0012) or large (4,512.30), and negative (theta),
+// so the decimals depend on the size of the number, ignoring its sign.
+export function formatOptionValue(v: number): string {
+  const a = Math.abs(v)
+  const decimals = a >= 100 ? 2 : a >= 1 ? 3 : 4
+  return v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+}
+
+// Big counts in short form: 1234 → "1.2K", 999 → "999"
+export function formatCompact(n: number): string {
+  return n.toLocaleString('en-US', { notation: 'compact', maximumFractionDigits: 1 })
+}

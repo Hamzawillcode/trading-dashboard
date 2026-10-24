@@ -28,7 +28,9 @@ export function SymbolSummary() {
   ]
 
   return (
-    <div className="flex flex-col gap-4">
+    // Phase 7: price on the left, stats on the right (they wrap underneath on narrow screens),
+    // to leave more height for the chart / option chain below.
+    <div className="flex flex-wrap items-end justify-between gap-3">
       {/* ===== Big price display ===== */}
       <div>
         <p className="text-sm text-muted">
@@ -41,11 +43,11 @@ export function SymbolSummary() {
         <p className={color}>{ticker ? formatPercent(ticker.changePercent) : 'Waiting for live data…'}</p>
       </div>
 
-      {/* ===== 24h stats in a 3-column grid (stacks to 1 column on phones) ===== */}
-      <dl className="grid gap-3 sm:grid-cols-3">
+      {/* ===== 24h stats: 3 small boxes side by side ===== */}
+      <dl className="grid grid-cols-3 gap-2">
         {stats.map(([label, value]) => (
           // label is unique here, so it works as the key
-          <div key={label} className="rounded-md border border-border p-3">
+          <div key={label} className="rounded-md border border-border px-3 py-2">
             <dt className="text-xs text-muted">{label}</dt>
             <dd className="tabular-nums">{value}</dd>
           </div>

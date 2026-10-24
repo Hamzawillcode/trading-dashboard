@@ -60,7 +60,7 @@
 - **Build:** a live order book that follows Binance's documented "manage a local order book" algorithm
 - **Notes:** `notes/06-order-book.md`
 
-### Phase 7: Option chain (2.5h)
+### Phase 7: Option chain (2.5h) ✅ built
 - **Study:** calls/puts, strike, expiry, ITM/ATM/OTM · Open Interest · Implied Volatility · Black–Scholes intuition (no derivation) · Greeks: Delta, Gamma, Theta, Vega · virtualization, and why 200 rows × 20 columns is slow · `React.memo`, `useMemo`
 - **Build:** a 200+ strike chain priced live off the spot price with Black–Scholes, rendered through react-window
 - **Notes:** `notes/07-option-chain.md`

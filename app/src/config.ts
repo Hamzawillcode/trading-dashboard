@@ -61,3 +61,18 @@ export const STARTING_CASH = 10_000
 // ===================== ORDER BOOK (Phase 6) =====================
 export const BOOK_SNAPSHOT_LIMIT = 1000 // levels per side in the REST snapshot (Binance max is 5000)
 export const BOOK_LEVELS_SHOWN = 12     // max levels per side drawn (fewer if the panel is short)
+
+// ===================== OPTION CHAIN (Phase 7) =====================
+// There's no free public options feed for these coins here, so implied volatility is MODELLED.
+// These are rough "typical" annual volatilities (0.5 = 50%/year), used as the at-the-money IV.
+export const MODEL_VOL: Record<string, number> = {
+  BTCUSDT: 0.5,
+  ETHUSDT: 0.65,
+  BNBUSDT: 0.6,
+  SOLUSDT: 0.8,
+  XRPUSDT: 0.85,
+  ADAUSDT: 0.85,
+  DOGEUSDT: 0.95,
+  AVAXUSDT: 0.9,
+}
+export const STRIKES_EACH_SIDE = 100 // 100 below ATM + ATM + 100 above = 201 strikes
