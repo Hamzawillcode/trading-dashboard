@@ -70,7 +70,7 @@
 - **Build:** a mobile layout with tabs and polish
 - **Notes:** `notes/08-responsive-ui.md`
 
-### Phase 9: Testing (2h)
+### Phase 9: Testing (2h) ✅ built
 - **Study:** the testing pyramid (unit / integration / E2E) · Vitest · React Testing Library ("test like a user") · Playwright (real browser)
 - **Build:** unit tests for P&L and validation, RTL tests for the order form, a Playwright test of the order flow
 - **Notes:** `notes/09-testing.md`
