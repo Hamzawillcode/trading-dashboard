@@ -54,7 +54,7 @@ Where to look on GitHub: the **Actions** tab (every run, its logs, failed-test a
 | **Trigger** (`on:`) | The events that start it | `push` to main, `pull_request`, `workflow_dispatch` (manual button) |
 | **Job** | A group of steps on **one fresh VM**; jobs run **in parallel** unless `needs:` links them | `check`, `e2e`, `deploy` |
 | **Runner** | The machine | `ubuntu-latest`, created for the job and destroyed after |
-| **Step** | One command (`run:`) or one reusable **action** (`uses:`) | `npm ci`, `actions/checkout@v4` |
+| **Step** | One command (`run:`) or one reusable **action** (`uses:`) | `npm ci`, `actions/checkout@v7` |
 | **Action** | A packaged, versioned step someone published | `checkout`, `setup-node`, `upload-artifact`, `deploy-pages` |
 | **Artifact** | A file saved from a run that you can download | Playwright traces when a test fails; the built site for Pages |
 | **Secret / token** | Credentials injected at runtime, never in the code | `GITHUB_TOKEN` (automatic). We need no other secrets |
@@ -71,7 +71,7 @@ Where to look on GitHub: the **Actions** tab (every run, its logs, failed-test a
 - **Deploy only from `main` pushes, never from PRs.** PR code hasn't been reviewed yet.
 - **Retries only in CI** (`retries: 2`): a network blip on a shared runner shouldn't fail the build. Locally there are 0 retries, so flakiness stays visible.
 - **Traces uploaded on failure:** download them from the run page and replay with `npx playwright show-trace`. You can debug a CI-only failure without reproducing it.
-- **Pinned versions:** `node-version: 24`, `actions/checkout@v4`. A new major version can't silently change the build (for maximum safety, pin actions to a commit SHA).
+- **Pinned versions:** `node-version: 24`, `actions/checkout@v7`. A new major version can't silently change the build (for maximum safety, pin actions to a commit SHA).
 
 ### 6. Deploying a static site
 `npm run build` turns our TypeScript + React into **plain files** in `app/dist/`: one `index.html`, one JS bundle and one CSS file with hashed names (`index-DMJoOVMd.js`). These are a **static site**: no server code, so any file host or CDN can serve them.

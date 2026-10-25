@@ -41,10 +41,10 @@ jobs:
     runs-on: ubuntu-latest          # a fresh Linux VM, thrown away after the job
     steps:
       # 1. Download the repository's code onto the runner (it starts empty)
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # 2. Install Node.js, and CACHE ~/.npm keyed on the lock file: later runs skip most downloads
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24   # LTS; vitest + jsdom need ≥ 22.22
           cache: npm
@@ -70,8 +70,8 @@ jobs:
     name: End-to-end tests (Playwright)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -92,7 +92,7 @@ jobs:
       # with `npx playwright show-trace trace.zip`. `if: failure()` = only when an earlier step failed.
       - name: Upload traces of failed tests
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces
           path: app/test-results/
@@ -114,8 +114,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -129,8 +129,8 @@ jobs:
           BASE_PATH: /${{ github.event.repository.name }}/
 
       # Package app/dist (plain HTML, JS and CSS: a "static site") and hand it to Pages
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: app/dist
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
