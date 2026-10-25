@@ -75,12 +75,12 @@
 - **Build:** unit tests for P&L and validation, RTL tests for the order form, a Playwright test of the order flow
 - **Notes:** `notes/09-testing.md`
 
-### Phase 10: CI/CD (1h)
+### Phase 10: CI/CD (1h) ✅ built
 - **Study:** git basics (commit, branch, push) · what CI is · GitHub Actions workflow YAML · deploying static sites (Vercel/Netlify)
 - **Build:** a git repo, a workflow that runs lint + tests + Playwright on every push, and a deploy
 - **Notes:** `notes/10-ci-cd.md`
 
-### Phase 11: Interview revision (1h)
+### Phase 11: Interview revision (1h) ✅ written
 - Read `notes/INTERVIEW.md`: every resume phrase with a 30-second explanation and follow-up questions.
 
 ## Honest notes about the resume bullet

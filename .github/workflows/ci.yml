@@ -1,0 +1,136 @@
+# ci.yml: the CI/CD PIPELINE (Phase 10), run by GitHub Actions.
+#
+# GitHub reads every .yml file in .github/workflows/ and runs it on its own machines ("runners").
+# This one does, on every push and pull request:
+#
+#   push ──> [ check ]  lint · type-check + build · unit/component tests + coverage ─┐
+#        └─> [ e2e ]    Playwright in real Chromium, desktop + phone                ─┼─> [ deploy ] → GitHub Pages
+#                                                                                     (only if BOTH passed,
+#                                                                                      and only on main)
+# CI = Continuous Integration: every change is automatically checked, so a broken main is caught in minutes.
+# CD = Continuous Deployment: every change that passes is automatically put live.
+
+name: CI
+
+# WHEN to run (the "triggers")
+on:
+  push:
+    branches: [main]
+  pull_request:          # also check PRs, BEFORE they are merged
+  workflow_dispatch:     # adds a "Run workflow" button in the Actions tab (manual run)
+
+# If you push twice quickly, cancel the older run of the same branch: only the newest commit matters
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# The GITHUB_TOKEN every job gets is read-only by default ("least privilege").
+# Only the deploy job asks for more (see below).
+permissions:
+  contents: read
+
+# Every `run:` step starts in app/, where package.json lives (same as running commands locally)
+defaults:
+  run:
+    working-directory: app
+
+jobs:
+  # ─────────────────────────── JOB 1: fast checks (~1 min) ───────────────────────────
+  check:
+    name: Lint, type-check, unit tests
+    runs-on: ubuntu-latest          # a fresh Linux VM, thrown away after the job
+    steps:
+      # 1. Download the repository's code onto the runner (it starts empty)
+      - uses: actions/checkout@v4
+
+      # 2. Install Node.js, and CACHE ~/.npm keyed on the lock file: later runs skip most downloads
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24   # LTS; vitest + jsdom need ≥ 22.22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      # 3. `npm ci` (not `npm install`): installs EXACTLY what package-lock.json says, and fails if
+      #    package.json and the lock disagree. Reproducible: CI uses the same versions you tested with.
+      - run: npm ci
+
+      - name: Lint (oxlint)
+        run: npm run lint
+
+      # `npm run build` = `tsc -b && vite build`, so a TYPE ERROR anywhere fails the build
+      - name: Type-check and build
+        run: npm run build
+
+      - name: Unit, integration and component tests (Vitest)
+        run: npm run test:coverage
+
+  # ─────────────────────────── JOB 2: end-to-end (~2 min) ───────────────────────────
+  # Runs IN PARALLEL with `check` (no `needs:`), so the whole pipeline finishes sooner.
+  e2e:
+    name: End-to-end tests (Playwright)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+
+      # The npm package doesn't include the browser itself. Download Chromium plus the Linux
+      # libraries it needs (--with-deps). We only test in Chromium, so we skip Firefox/WebKit.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts starts the dev server itself. CI=true is set by GitHub, which turns on
+      # 2 retries and the "github" reporter (failures show up as annotations on the commit).
+      - name: Run Playwright
+        run: npm run test:e2e
+
+      # If a test failed, upload the TRACES so you can download them from the run page and replay them
+      # with `npx playwright show-trace trace.zip`. `if: failure()` = only when an earlier step failed.
+      - name: Upload traces of failed tests
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: app/test-results/
+          retention-days: 7
+
+  # ─────────────────────────── JOB 3: deploy to GitHub Pages ───────────────────────────
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: [check, e2e]              # waits for BOTH. If any test fails, nothing is deployed.
+    # Deploy only real pushes to main: never from a pull request (PR code isn't reviewed yet)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # Extra permissions for THIS job only: publish to Pages, and prove its identity to Pages (OIDC token)
+    permissions:
+      pages: write
+      id-token: write
+    # An "environment" shows up in the repo sidebar with the live URL and the deploy history
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+
+      # The site is served from /trading-dashboard/, not from the root (see `base` in vite.config.ts)
+      - name: Build for GitHub Pages
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      # Package app/dist (plain HTML, JS and CSS: a "static site") and hand it to Pages
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: app/dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

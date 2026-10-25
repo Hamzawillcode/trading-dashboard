@@ -11,6 +11,11 @@ import { defineConfig } from 'vitest/config'   // Vite's defineConfig, plus type
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // BASE = the folder the site is served from. Locally that's the root ("/").
+  // On GitHub Pages (Phase 10) the site lives at https://<user>.github.io/trading-dashboard/,
+  // so the CI deploy job sets BASE_PATH=/trading-dashboard/ and Vite prefixes every asset URL with it.
+  // Without this, the deployed page would request /assets/index.js from the wrong folder and show a blank page.
+  base: process.env.BASE_PATH ?? '/',
   test: {
     // jsdom = a fake browser (document, window, localStorage) written in JavaScript, running in Node.
     // Component tests need it to render React. It's much faster than starting a real browser.
